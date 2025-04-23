@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,17 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.rockrecap.R
 import com.rockrecap.data.enums.PageNames
 import com.rockrecap.data.enums.getPageNamesList
 import com.rockrecap.data.navigation.NavigationRoutes
 import com.rockrecap.data.RouteViewModel
-import com.rockrecap.ui.theme.RockGray
-import com.rockrecap.ui.theme.RockRed
 import com.rockrecap.ui.theme.Tertiary
 
 @Composable
@@ -61,6 +56,7 @@ fun Header(navController: NavHostController, viewModel: RouteViewModel){
                     navController.navigate(NavigationRoutes.ACTIVE_ROUTES_PAGE)
                     // used to reset the view in the statistics page if navigated through the hamburger menu
                     viewModel.updateRouteFilter(null)
+                    viewModel.resetRouteFormPage()
                            },
             painter = painterResource(id = R.drawable.rockrecap_logo),
             contentDescription = "Rock Recap Logo",
@@ -68,6 +64,8 @@ fun Header(navController: NavHostController, viewModel: RouteViewModel){
 
         HamburgerDropDownMenu (){ selectionOption ->
 //                viewModel.unsetSelectedRoute() // issue here is on the RDP we literally see this being changed in real time
+
+            viewModel.resetRouteFormPage()
             when(selectionOption){
                 PageNames.ACTIVE_ROUTES.text -> navController.navigate(NavigationRoutes.ACTIVE_ROUTES_PAGE)
                 PageNames.INACTIVE_ROUTES.text -> navController.navigate(NavigationRoutes.INACTIVE_ROUTES_PAGE)

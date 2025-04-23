@@ -19,6 +19,9 @@ interface RouteDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(route: Route)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRoutes(routes: List<Route>) // used to insert dummy data at the start of the application launch
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(route: Route)
 
@@ -42,10 +45,10 @@ interface RouteDao {
     @Query("SELECT * from routes ORDER BY startDate ASC")
     fun getAllRoutes(): Flow<List<Route>>
 
-    @Query("SELECT * from routes WHERE activeStatus = :status ORDER BY startDate ASC")
+    @Query("SELECT * from routes WHERE activeStatus = :status ORDER BY startDate DESC")
     fun getAllActiveRoutes(status: String = RouteActiveStatus.ACTIVE.name): Flow<List<Route>>
 
-    @Query("SELECT * from routes WHERE activeStatus = :status ORDER BY startDate ASC")
+    @Query("SELECT * from routes WHERE activeStatus = :status ORDER BY startDate DESC")
     fun getAllInactiveRoutes(status: String = RouteActiveStatus.INACTIVE.name): Flow<List<Route>>
 
 

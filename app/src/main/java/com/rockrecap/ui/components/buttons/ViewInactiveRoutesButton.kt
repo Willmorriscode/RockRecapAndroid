@@ -17,9 +17,7 @@ import com.rockrecap.ui.theme.Black
 import com.rockrecap.ui.theme.Secondary
 
 @Composable
-fun ViewRoutesButton(viewActiveRoutes: Boolean, onClickViewRoute: () -> Unit){
-    val buttonText = if (viewActiveRoutes) stringResource(id = R.string.view_active_routes) else stringResource(id = R.string.view_inactive_routes)
-
+fun ViewInactiveRoutesButton(onClickViewRoute: () -> Unit){
     Column(modifier = Modifier
         .fillMaxWidth()
     ){
@@ -33,8 +31,10 @@ fun ViewRoutesButton(viewActiveRoutes: Boolean, onClickViewRoute: () -> Unit){
                 contentColor = Black   // Use theme's onPrimary color
             )
         ) {
-            Text(text = buttonText,
-                style = MaterialTheme.typography.labelSmall)
+            Text(
+                text = stringResource(id = R.string.view_inactive_routes),
+                style = MaterialTheme.typography.labelSmall
+            )
         }
     }
 }

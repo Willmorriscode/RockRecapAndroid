@@ -19,6 +19,8 @@ import com.rockrecap.ui.theme.RockPurple
 import com.rockrecap.ui.theme.RockPurple50
 import com.rockrecap.ui.theme.RockRed
 import com.rockrecap.ui.theme.RockRed50
+import com.rockrecap.ui.theme.RockTan
+import com.rockrecap.ui.theme.RockTan50
 import com.rockrecap.ui.theme.RockWhite
 import com.rockrecap.ui.theme.RockYellow
 import com.rockrecap.ui.theme.RockYellow50
@@ -33,6 +35,11 @@ enum class RouteColor(val text: String, val color: Color, val backgroundColor: C
         text = "Pink",
         color = RockPink,
         backgroundColor = RockPink50
+    ),
+    PURPLE(
+        text = "Purple",
+        color = RockPurple,
+        backgroundColor = RockPurple50
     ),
     RED(
         text = "Red",
@@ -59,11 +66,6 @@ enum class RouteColor(val text: String, val color: Color, val backgroundColor: C
         color = RockBlue,
         backgroundColor = RockBlue50
     ),
-    PURPLE(
-        text = "Purple",
-        color = RockPurple,
-        backgroundColor = RockPurple50
-    ),
     GRAY(
         text = "Gray",
         color = RockGray,
@@ -74,6 +76,11 @@ enum class RouteColor(val text: String, val color: Color, val backgroundColor: C
         color = RockBlack,
         backgroundColor = RockBlack50
     ),
+    TAN(
+        text = "Tan",
+        color = RockTan,
+        backgroundColor = RockTan50
+    ),
     BROWN(
         text = "Brown",
         color = RockBrown,
@@ -83,7 +90,6 @@ enum class RouteColor(val text: String, val color: Color, val backgroundColor: C
 
 fun getRouteColorList(): List<RouteColor> {
     val colorList = mutableListOf<RouteColor>()
-    colorList.add(RouteColor.WHITE)
     colorList.add(RouteColor.PINK)
     colorList.add(RouteColor.RED)
     colorList.add(RouteColor.ORANGE)
@@ -91,8 +97,10 @@ fun getRouteColorList(): List<RouteColor> {
     colorList.add(RouteColor.GREEN)
     colorList.add(RouteColor.BLUE)
     colorList.add(RouteColor.PURPLE)
-    colorList.add(RouteColor.GRAY)
     colorList.add(RouteColor.BLACK)
+    colorList.add(RouteColor.GRAY)
+    colorList.add(RouteColor.WHITE)
+    colorList.add(RouteColor.TAN)
     colorList.add(RouteColor.BROWN)
 
     return colorList

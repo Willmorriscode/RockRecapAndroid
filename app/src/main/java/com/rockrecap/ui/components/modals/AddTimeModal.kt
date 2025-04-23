@@ -55,7 +55,7 @@ fun AddTimeModal(
             ){
                 Text(
                     text = stringResource(id = R.string.add_route_time),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(0.dp)
                 )
                 Row(modifier = Modifier,

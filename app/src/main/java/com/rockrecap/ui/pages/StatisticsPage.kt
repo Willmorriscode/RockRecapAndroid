@@ -1,5 +1,6 @@
 package com.rockrecap.ui.pages
 
+import android.graphics.Typeface
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -36,14 +38,18 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -54,11 +60,17 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
+import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
+import com.patrykandpatrick.vico.compose.common.fill
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
+import com.patrykandpatrick.vico.core.common.Insets
+import com.patrykandpatrick.vico.core.common.component.TextComponent
 import com.rockrecap.R
 import com.rockrecap.ui.components.PageTitle
 import com.rockrecap.ui.theme.RockOutline
@@ -71,9 +83,14 @@ import com.rockrecap.data.enums.getRouteTypeList
 import com.rockrecap.ui.theme.RockBrown
 import com.rockrecap.ui.theme.ChartBlue
 import com.rockrecap.ui.theme.ChartGray
+import com.rockrecap.ui.theme.RockBlue
+import com.rockrecap.ui.theme.RockRed
 import com.rockrecap.ui.theme.filterChipTextFieldColors
 import com.rockrecap.utilities.formatCompletionFloat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.floor
 
 @Composable
@@ -100,7 +117,7 @@ fun StatisticsPage(navController: NavHostController, viewModel: RouteViewModel){
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ){
-                PageTitle(stringResource(id = R.string.statistics))
+                PageTitle(stringResource(id = R.string.statistics), true)
 
                 var allRouteTypesString = stringResource(R.string.all_route_types)
                 FilterDropdownMenu(allRouteTypesString){ routeType ->
@@ -114,13 +131,12 @@ fun StatisticsPage(navController: NavHostController, viewModel: RouteViewModel){
             }
             SimpleSummaryStatistics(stats, viewModel)
             RouteCompletionStatistics(stats, viewModel)
-            RouteGraphedStatistics(stats, viewModel)
+            RouteGraphedStatistics(stats, viewModel, coroutineScope)
             Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteCompletionStatistics(stats: UserRouteStatistics, viewModel: RouteViewModel) {
     Card(modifier = Modifier
@@ -270,7 +286,7 @@ val position =
 }
 
 @Composable
-fun RouteGraphedStatistics(stats: UserRouteStatistics, viewModel: RouteViewModel) {
+fun RouteGraphedStatistics(stats: UserRouteStatistics, viewModel: RouteViewModel, coroutineScope: CoroutineScope) {
 
     val xAxisFormatter =
         CartesianValueFormatter { context, x, _ ->
@@ -284,15 +300,16 @@ fun RouteGraphedStatistics(stats: UserRouteStatistics, viewModel: RouteViewModel
         }
 
     Card(modifier = Modifier
-        .fillMaxWidth()
-        .height(288.dp),
+        .fillMaxSize()
+        .height(400.dp),
         colors = CardDefaults.cardColors(
             containerColor = Tertiary
         ),
         shape = RoundedCornerShape(22.dp)
     ){
         Column(modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(vertical = 0.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ){
@@ -303,46 +320,91 @@ fun RouteGraphedStatistics(stats: UserRouteStatistics, viewModel: RouteViewModel
                 )
             }
             else{
-                val modelProducer = remember { CartesianChartModelProducer() }
-                LaunchedEffect(viewModel.routeFilter.value) {
-                    modelProducer.runTransaction {
-                        columnSeries { series(viewModel.getFormattedGradeList(
-                            completeStatus = RouteCompleteStatus.COMPLETED,
-                            stats = viewModel.getFilteredCompletedGradeStatistics(stats)
-                        )) }
+                // container rendering and holding the chart and other text
+                Column(modifier =
+                    Modifier
+                        .fillMaxWidth(17/20f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ){
+                    Column(modifier = Modifier
+                        .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(22.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ){
+                        Text(
+                            text = when(viewModel.routeFilter.value){
+                                RouteType.BOULDER -> stringResource(id = R.string.boulder_route_graph_label)
+                                RouteType.TOP_ROPE -> stringResource(id = R.string.top_rope_route_graph_label)
+                                RouteType.LEAD_CLIMB -> stringResource(id = R.string.lead_climb_route_graph_label)
+                                null -> ""
+                            },
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                        )
+
+                        Box(){ // holds graphs
+                            val modelProducer = remember { CartesianChartModelProducer() }
+                            LaunchedEffect(viewModel.routeFilter.value) {
+                                modelProducer.runTransaction {
+                                    columnSeries { series(viewModel.getFormattedGradeList(
+                                        completeStatus = RouteCompleteStatus.COMPLETED,
+                                        stats = viewModel.getFilteredCompletedGradeStatistics(stats)
+                                    )) }
+                                }
+                            }
+                            CartesianChartHost(
+                                rememberCartesianChart(
+                                    rememberColumnCartesianLayer(
+                                        ColumnCartesianLayer.ColumnProvider.series(
+                                            rememberLineComponent(fill = fill(Color(ChartBlue.toArgb())), thickness = 6.dp)
+                                        )
+                                    ),
+                                    startAxis = VerticalAxis.rememberStart(
+                                        title = "Y-Axis Grade Completion Counts",
+                                        tickLength = 3.dp,
+                                        itemPlacer = VerticalAxis.ItemPlacer.step(
+                                            step = {1.0}
+                                        ),
+                                        label = TextComponent(
+                                            typeface = Typeface.DEFAULT,
+                                            padding = Insets(0f),
+                                            margins = Insets(startDp = 0f, endDp = 6f, topDp = 0f, bottomDp = 0f),
+                                        )
+
+                                    ),
+                                    bottomAxis = HorizontalAxis.rememberBottom(
+                                        title = "X-Axis Grade Values",
+                                        tickLength = 3.dp,
+                                        valueFormatter = xAxisFormatter,
+                                        guideline = null,
+                                        labelRotationDegrees = 270.0f,
+                                        label = TextComponent(
+                                            typeface = Typeface.DEFAULT,
+                                            padding = Insets(0f),
+                                            margins = Insets(startDp = 0f, endDp = 0f, topDp = 6f, bottomDp = 0f),
+
+                                        )
+                                    ),
+
+                                ),
+                                modelProducer,
+                            )
+                        }
+                        Text(
+                            text = when(viewModel.routeFilter.value){
+                                RouteType.BOULDER -> stringResource(id = R.string.boulder_route_graph_xlabel)
+                                RouteType.TOP_ROPE -> stringResource(id = R.string.top_rope_route_graph_xlabel)
+                                RouteType.LEAD_CLIMB -> stringResource(id = R.string.lead_climb_route_graph_xlabel)
+                                null -> ""
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
-                CartesianChartHost(
-                    rememberCartesianChart(
-                        rememberColumnCartesianLayer(),
-                        startAxis = VerticalAxis.rememberStart(),
-                        bottomAxis = HorizontalAxis.rememberBottom(
-                            valueFormatter = xAxisFormatter
-                        ),
-                    ),
-                    modelProducer,
-                )
             }
         }
-    }
-}
-
-@Composable
-fun LinearDeterminateIndicator(percentage: Float) {
-        LinearProgressIndicator(
-            progress = { percentage },
-            modifier = Modifier.fillMaxWidth().height(6.dp),
-            color = ChartBlue,
-            trackColor = ChartGray,
-        )
-
-}
-
-/** Iterate the progress value */
-suspend fun loadProgress(updateProgress: (Float) -> Unit) {
-    for (i in 1..100) {
-        updateProgress(i.toFloat() / 100)
-        delay(100)
     }
 }
 
@@ -352,7 +414,7 @@ fun SimpleSummaryStatistics(stats: UserRouteStatistics, viewModel: RouteViewMode
     ){
         Card(
             modifier = Modifier
-                .fillMaxWidth(1/3f)
+                .width(114.dp)
                 .height(166.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Tertiary
@@ -360,8 +422,8 @@ fun SimpleSummaryStatistics(stats: UserRouteStatistics, viewModel: RouteViewMode
             shape = RoundedCornerShape(18.dp)
         ){
             Column(
-                modifier = Modifier.
-                fillMaxSize(),
+                modifier = Modifier
+                .fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
@@ -386,7 +448,7 @@ fun SimpleSummaryStatistics(stats: UserRouteStatistics, viewModel: RouteViewMode
         }
         Card(
             modifier = Modifier
-                .fillMaxWidth(1/2f)
+                .width(114.dp)
                 .height(166.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Tertiary
@@ -394,8 +456,8 @@ fun SimpleSummaryStatistics(stats: UserRouteStatistics, viewModel: RouteViewMode
             shape = RoundedCornerShape(18.dp)
         ){
             Column(
-                modifier = Modifier.
-                fillMaxSize(),
+                modifier = Modifier
+                .fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
@@ -414,7 +476,7 @@ fun SimpleSummaryStatistics(stats: UserRouteStatistics, viewModel: RouteViewMode
         }
         Card(
             modifier = Modifier
-                .fillMaxWidth()
+                .width(114.dp)
                 .height(166.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Tertiary
@@ -422,8 +484,8 @@ fun SimpleSummaryStatistics(stats: UserRouteStatistics, viewModel: RouteViewMode
             shape = RoundedCornerShape(18.dp)
         ){
             Column(
-                modifier = Modifier.
-                fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){

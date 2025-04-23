@@ -30,10 +30,12 @@ enum class RouteGrade(val text: String) {
     R5_15("5.15");
 }
 
-// Will return a list of RouteGrades
-// options = 1 : returns boulder grades
-// options = 2 : returns top rope / lead climb grades
-// options = 3 : all route grades
+/**
+ * Will return a list of RouteGrades
+ * options = 1 : returns boulder grades
+ * options = 2 : returns top rope / lead climb grades
+ * options = 3 : all route grades
+ */
 fun getRouteGradeList(option: Int): List<RouteGrade> {
     val routeGradeList = mutableListOf<RouteGrade>()
 

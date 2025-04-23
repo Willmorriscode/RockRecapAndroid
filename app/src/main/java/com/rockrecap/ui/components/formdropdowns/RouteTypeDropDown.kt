@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rockrecap.R
+import com.rockrecap.data.RouteViewModel
 import com.rockrecap.data.enums.getRouteTypeList
 import com.rockrecap.ui.theme.Tertiary
 import com.rockrecap.ui.theme.customTextFieldColors
@@ -27,7 +28,7 @@ import com.rockrecap.ui.theme.customTextFieldColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteTypeDropDownMenu(
-    setValue:String,
+    viewModel: RouteViewModel,
     routeType: (String) -> Unit,
 ){
     Column(
@@ -40,23 +41,25 @@ fun RouteTypeDropDownMenu(
 
         val options = getRouteTypeList().map { it.text }
         var expanded by remember { mutableStateOf(false) }
-        var selectedValue by remember { mutableStateOf(setValue) }
 
         ExposedDropdownMenuBox(modifier = Modifier
             .background(Tertiary),
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }) {
+            viewModel.routeTypeValue?.let {
+                TextField(
+                    modifier = Modifier.menuAnchor()
+                        .fillMaxWidth(),
+                    readOnly = true,
+                    value = it,
+                    onValueChange = {},
+                    colors = customTextFieldColors(),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    isError = viewModel.routeTypeError,
+                )
+            }
 
-            TextField(
-                modifier = Modifier.menuAnchor()
-                    .fillMaxWidth(),
-                readOnly = true,
-                value = selectedValue,
-                onValueChange = {},
-                colors = customTextFieldColors(),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            )
             ExposedDropdownMenu(modifier = Modifier
                 .background(Tertiary),
                 expanded = expanded, onDismissRequest = { expanded = false }
@@ -64,12 +67,19 @@ fun RouteTypeDropDownMenu(
                 options.forEach{ selectionOption ->
                     DropdownMenuItem(text = { Text(text = selectionOption) },
                         onClick = {
-                            selectedValue = selectionOption
+                            viewModel.onRouteTypeChange(selectionOption)
                             routeType(selectionOption)
                             expanded = false
                         })
                 }
             }
+        }
+        if (viewModel.routeTypeError) {
+            Text(
+                text = "Please select a route type",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

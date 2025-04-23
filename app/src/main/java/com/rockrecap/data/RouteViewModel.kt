@@ -1,18 +1,15 @@
 package com.rockrecap.data
 
-import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rockrecap.data.enums.RouteCompleteStatus
 import com.rockrecap.data.enums.RouteGrade
 import com.rockrecap.data.enums.RouteType
 import com.rockrecap.data.enums.getRouteGradeList
-import com.rockrecap.utilities.floatToPercentage
 import com.rockrecap.utilities.formatRouteTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -205,7 +202,7 @@ class RouteViewModel(private val routesRepository: RoutesRepository): ViewModel(
     private suspend fun getCompletedCountByGradeAndRouteType(gradeString: String, routeTypeString: String): Int { return routesRepository.getCompletedCountByGradeAndRouteType(gradeString, routeTypeString) }
     private suspend fun getIncompleteCountByGradeAndRouteType(gradeString: String, routeTypeString: String): Int { return routesRepository.getIncompleteCountByGradeAndRouteType(gradeString, routeTypeString) }
 
-    suspend fun getRouteCompletionStatusCountsByRouteType(routeType: RouteType, routeCompleteStatus: RouteCompleteStatus): List<Int> {
+    private suspend fun getRouteCompletionStatusCountsByRouteType(routeType: RouteType, routeCompleteStatus: RouteCompleteStatus): List<Int> {
 
         val gradesCompletedList = mutableListOf<Int>()
 
@@ -287,6 +284,230 @@ class RouteViewModel(private val routesRepository: RoutesRepository): ViewModel(
             null -> null
         }
         return routeGradeList
+    }
+
+    // form validation here
+
+    var routeNameValue by mutableStateOf("")
+        private set
+
+    var routeGradeValue by mutableStateOf( "")
+        private set
+
+    var routeTypeValue by mutableStateOf("")
+        private set
+
+    var routeColorValue by mutableStateOf("")
+        private set
+
+    var routeMinuteValue by mutableStateOf("0")
+        private set
+
+    var routeHourValue by mutableStateOf("0")
+        private set
+
+    var routeSummaryValue by mutableStateOf("")
+        private set
+
+    private var _routeNameError by mutableStateOf(false)
+
+    // 2) public read-only view of it
+    val routeNameError: Boolean
+        get() = _routeNameError
+
+    // 3) explicit setter function
+    fun setRouteNameError(isError: Boolean) {
+        _routeNameError = isError
+    }
+
+    // routeNameErrorMessage
+    private var _routeNameErrorMessage by mutableStateOf("")
+    val routeNameErrorMessage: String
+        get() = _routeNameErrorMessage
+    fun setRouteNameErrorMessage(message: String) {
+        _routeNameErrorMessage = message
+    }
+
+    // routeGradeError
+    private var _routeGradeError by mutableStateOf(false)
+    val routeGradeError: Boolean
+        get() = _routeGradeError
+    fun setRouteGradeError(isError: Boolean) {
+        _routeGradeError = isError
+    }
+
+    // routeTypeError
+    private var _routeTypeError by mutableStateOf(false)
+    val routeTypeError: Boolean
+        get() = _routeTypeError
+    fun setRouteTypeError(isError: Boolean) {
+        _routeTypeError = isError
+    }
+
+    // routeColorError
+    private var _routeColorError by mutableStateOf(false)
+    val routeColorError: Boolean
+        get() = _routeColorError
+    fun setRouteColorError(isError: Boolean) {
+        _routeColorError = isError
+    }
+
+    // routeSummaryError
+    private var _routeSummaryError by mutableStateOf(false)
+    val routeSummaryError: Boolean
+        get() = _routeSummaryError
+    fun setRouteSummaryError(isError: Boolean) {
+        _routeSummaryError = isError
+    }
+
+    // routeSummaryErrorMessage
+    private var _routeSummaryErrorMessage by mutableStateOf("")
+    val routeSummaryErrorMessage: String
+        get() = _routeSummaryErrorMessage
+    fun setRouteSummaryErrorMessage(message: String) {
+        _routeSummaryErrorMessage = message
+    }
+
+    // setters so you can update from Composables:
+    fun onRouteNameChange(newValue: String) {
+        routeNameValue = newValue
+    }
+
+    fun onRouteGradeChange(newValue: String) {
+        routeGradeValue = newValue
+    }
+
+    fun onRouteTypeChange(newValue: String) {
+        routeTypeValue = newValue
+    }
+
+    fun onRouteColorChange(newValue: String) {
+        routeColorValue = newValue
+    }
+
+    fun onRouteHourChange(newValue: String) {
+        routeHourValue = newValue
+    }
+
+    fun onRouteMinuteChange(newValue: String) {
+        routeMinuteValue = newValue
+    }
+
+    fun onRouteSummaryChange(newValue: String) {
+        routeSummaryValue = newValue
+    }
+
+    private var _gradeSelectionIsEnabled by mutableStateOf(false)
+
+    val gradeSelectionIsEnabled: Boolean
+        get() = _gradeSelectionIsEnabled
+
+    fun setGradeSelectionIsEnabled(enabled: Boolean) {
+        _gradeSelectionIsEnabled = enabled
+    }
+
+    // call when exiting the add route page
+    fun resetRouteFormPage(){
+        onRouteNameChange("")
+        onRouteColorChange("")
+        onRouteTypeChange("")
+        onRouteGradeChange("")
+        onRouteMinuteChange("0")
+        onRouteHourChange("0")
+        onRouteSummaryChange("")
+
+        setRouteNameError(false)
+        setRouteColorError(false)
+        setRouteTypeError(false)
+        setRouteGradeError(false)
+        setRouteSummaryError(false)
+
+        setRouteNameErrorMessage("")
+        setRouteSummaryErrorMessage("")
+        setGradeSelectionIsEnabled(false)
+    }
+
+    fun enterEditRoutePage(){
+        selectedRoute.value?.let {
+            onRouteNameChange(it.name)
+            onRouteGradeChange(it.grade.text)
+            onRouteTypeChange(it.type.text)
+            onRouteColorChange(it.color.text)
+            onRouteMinuteChange((it.timeLogged % 60).toString())
+            onRouteHourChange((it.timeLogged / 60).toString())
+            onRouteSummaryChange(it.summary)
+        }
+    }
+
+    fun validateForm(): Boolean {
+        checkRouteName()
+        checkRouteSummary()
+        checkRouteType()
+        checkRouteColor()
+        checkRouteGrade()
+
+        // if there are no form errors, return true to submit the route
+        if(routeNameError || routeSummaryError || routeTypeError || routeColorError || routeGradeError){
+            return false
+        }
+        else{
+            return true
+        }
+    }
+
+    private fun checkRouteSummary() {
+        if (routeSummaryValue.isBlank()){
+            setRouteSummaryError(true)
+            setRouteSummaryErrorMessage("Please enter a summary")
+        }
+        else if(routeSummaryValue.length >= 100){
+            setRouteSummaryError(true)
+            setRouteSummaryErrorMessage("Please enter a summary of 100 characters or less")
+        }
+        else {
+            setRouteSummaryError(false)
+        }
+    }
+
+    private fun checkRouteName() {
+        if (routeNameValue.isBlank()){
+            setRouteNameError(true)
+            setRouteNameErrorMessage("Please enter a route name")
+        }
+        else if(routeNameValue.length >= 20){
+            setRouteNameError(true)
+            setRouteNameErrorMessage("Please enter a name of 20 characters or less")
+        }
+        else {
+            setRouteNameError(false)
+        }
+    }
+
+    private fun checkRouteType(){
+        if (routeTypeValue.isBlank()){
+            setRouteTypeError(true)
+        }
+        else {
+            setRouteTypeError(false)
+        }
+    }
+
+    private fun checkRouteColor(){
+        if (routeColorValue.isBlank()){
+            setRouteColorError(true)
+        }
+        else {
+            setRouteColorError(false)
+        }
+    }
+
+    private fun checkRouteGrade(){
+        if (routeGradeValue.isBlank()){
+            setRouteGradeError(true)
+        }
+        else {
+            setRouteGradeError(false)
+        }
     }
 
     /* Big function that creates and returns the UserStatistics object for use in the statistics page */

@@ -15,6 +15,7 @@ class OfflineRouteRepository(private val routeDao: RouteDao) : RoutesRepository 
     override suspend fun updateActiveStatus(route: Route, newStatus: String) = routeDao.updateActiveStatus(route.routeId, newStatus)
     override suspend fun updateRouteTime(route: Route, newTime: Int) = routeDao.updateRouteTime(route.routeId, newTime)
     override suspend fun insertRoute(route: Route) = routeDao.insert(route)
+    override suspend fun insertRoutes(routes: List<Route>) = routeDao.insertRoutes(routes)
     override suspend fun deleteRoute(route: Route) = routeDao.delete(route)
     override suspend fun updateRoute(route: Route) = routeDao.update(route)
 

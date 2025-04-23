@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -63,6 +64,8 @@ import com.rockrecap.ui.theme.White
 import com.rockrecap.utilities.formatRouteDate
 import com.rockrecap.utilities.formatRouteTime
 import com.rockrecap.data.RouteViewModel
+import com.rockrecap.data.SnackbarController
+import com.rockrecap.data.SnackbarEvent
 import com.rockrecap.data.enums.RouteCompleteStatus
 import kotlinx.coroutines.launch
 
@@ -70,6 +73,7 @@ import kotlinx.coroutines.launch
 fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel){
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     var showAddTimeModal by rememberSaveable {
         mutableStateOf(false)
@@ -98,18 +102,32 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                 PageTitle(selectedRoute.name)
                 RouteDisplayPageDropDownMenu(selectedRoute){ onMenuOptionSelected ->
                     when(onMenuOptionSelected){
-                        RouteDisplayPageMenuOptions.EDIT_ROUTE.text -> navController.navigate(NavigationRoutes.EDIT_ROUTE_PAGE)
+                        RouteDisplayPageMenuOptions.EDIT_ROUTE.text -> {
+                                viewModel.enterEditRoutePage()
+                                navController.navigate(NavigationRoutes.EDIT_ROUTE_PAGE)
+                        }
                         RouteDisplayPageMenuOptions.DELETE_ROUTE.text -> showDeleteRouteModal = true
                         RouteDisplayPageMenuOptions.DEACTIVATE_ROUTE.text -> {
                             coroutineScope.launch() {
                                 viewModel.selectedRoute.value?.let { viewModel.updateActiveStatus(it, RouteActiveStatus.INACTIVE.name) }
+                                SnackbarController.sendEvent(
+                                    event = SnackbarEvent(
+                                        message = context.getString(R.string.route_active_status_changed_to) + RouteActiveStatus.INACTIVE.text
+                                    )
+                                )
                                 }
                             }
                         RouteDisplayPageMenuOptions.ACTIVATE_ROUTE.text ->{
                             coroutineScope.launch() {
                                 viewModel.selectedRoute.value?.let { viewModel.updateActiveStatus(it, RouteActiveStatus.ACTIVE.name)}
+                                SnackbarController.sendEvent(
+                                    event = SnackbarEvent(
+                                        message = context.getString(R.string.route_active_status_changed_to) + RouteActiveStatus.ACTIVE.text
+                                    )
+                                )
                             }
                         }
+                        // unused
                         RouteDisplayPageMenuOptions.MARK_COMPLETE.text -> {
                             coroutineScope.launch(){
                                 viewModel.selectedRoute.value?.let { viewModel.updateCompletedStatus(it, RouteCompleteStatus.COMPLETED.name)}
@@ -118,6 +136,11 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                         RouteDisplayPageMenuOptions.MARK_INCOMPLETE.text -> {
                             coroutineScope.launch(){
                                 viewModel.selectedRoute.value?.let { viewModel.updateCompletedStatus(it, RouteCompleteStatus.INCOMPLETE.name) }
+                                SnackbarController.sendEvent(
+                                    event = SnackbarEvent(
+                                        message = context.getString(R.string.route_completion_status_changed_to) + RouteCompleteStatus.INCOMPLETE.text
+                                    )
+                                )
                             }
                         }
                     }
@@ -131,7 +154,13 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                         // save the status before deleting to be able to navigate!
                         val pageToView = viewModel.selectedRoute.value?.activeStatus
                         coroutineScope.launch(){
+                            val routeName = viewModel.selectedRoute.value?.name
                             viewModel.selectedRoute.value?.let { viewModel.deleteRoute(it) }
+                            SnackbarController.sendEvent(
+                                event = SnackbarEvent(
+                                    message = "'${routeName}' route deleted"
+                                )
+                            )
                         }
                         if(pageToView == RouteActiveStatus.ACTIVE){
                             navController.navigate(NavigationRoutes.ACTIVE_ROUTES_PAGE)
@@ -219,6 +248,11 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                                         if (newTime != 0){
                                             coroutineScope.launch(){
                                                 viewModel.selectedRoute.value?.let { viewModel.updateRouteTime(it, newTime) }
+                                                SnackbarController.sendEvent(
+                                                    event = SnackbarEvent(
+                                                        message = "${formatRouteTime(newTime)} added to total route time"
+                                                    )
+                                                )
                                             }
                                         }
                                     },
@@ -242,7 +276,7 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                                 text = stringResource(id = R.string.date_started),
                                 style = MaterialTheme.typography.labelMedium)
                             Text(
-                                text = formatRouteDate(1742155200000,1),
+                                text = formatRouteDate(selectedRoute.startDate,1),
                                 style = MaterialTheme.typography.labelLarge)
                         }
                     }
@@ -252,6 +286,11 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                     onClick = {
                         coroutineScope.launch(){
                             viewModel.selectedRoute.value?.let { viewModel.updateCompletedStatus(it, RouteCompleteStatus.COMPLETED.name) }
+                            SnackbarController.sendEvent(
+                                event = SnackbarEvent(
+                                    message = "${context.getString(R.string.completed_route_message)} '${viewModel.selectedRoute.value?.name}'"
+                                )
+                            )
                         }
                     }
                 )
@@ -324,14 +363,14 @@ fun DeleteRouteModal(
             ){
                 Text(
                     text = stringResource(id = R.string.confirm_route_deletion),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(0.dp)
                 )
                 Box(modifier = Modifier
                     .width(220.dp)){
                     Text(
                         text = stringResource(R.string.route_deletion_confirmation_message),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                 }
                 Row(modifier = Modifier,

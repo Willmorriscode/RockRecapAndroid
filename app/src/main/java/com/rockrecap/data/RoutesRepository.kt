@@ -30,6 +30,8 @@ interface RoutesRepository {
      */
     suspend fun insertRoute(route: Route)
 
+    suspend fun insertRoutes(routes: List<Route>)
+
     /**
      * Delete item from the data source
      */

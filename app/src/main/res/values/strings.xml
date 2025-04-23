@@ -45,4 +45,17 @@
     <string name="routes_completed">Routes Completed</string>
     <string name="routes_attempted">Routes Attempted</string>
     <string name="all_route_types">All Route Types</string>
+    <string name="route_completion_distribution">Route Completion Distribution</string>
+    <string name="boulder_route_graph_xlabel">Boulder Route Grades</string>
+    <string name="top_rope_route_graph_xlabel">Top Rope Route Grades</string>
+    <string name="lead_climb_route_graph_xlabel">Lead Climb Route Grades</string>
+    <string name="boulder_route_graph_label">Number of Boulder Routes Completed Over Different Route Grades</string>
+    <string name="top_rope_route_graph_label">Number of Top Rope Routes Completed Over Different Route Grades</string>
+    <string name="lead_climb_route_graph_label">Number of Lead Climb Routes Completed Over Different Route Grades</string>
+    <string name="route_edited_successfully">Route Edited Successfully</string>
+    <string name="route_created">Route Created</string>
+    <string name="completed_route_message">"Congrats!! You completed"</string>
+    <string name="route_active_status_changed_to">"Route active status changed to: "</string>
+    <string name="route_completion_status_changed_to">"Route completion status changed to: "</string>
+    <string name="form_has_errors">Error: Invalid form input</string>
 </resources>

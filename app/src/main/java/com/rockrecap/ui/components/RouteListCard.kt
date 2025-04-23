@@ -81,7 +81,8 @@ fun RouteListCard(route: Route, onCardClick: () -> Unit) {
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                     ){
                         Text(
-                            modifier = Modifier,
+                            modifier = Modifier
+                                .fillMaxWidth(7/10f),
                             text = route.name,
                             style = MaterialTheme.typography.bodyMedium
                         )

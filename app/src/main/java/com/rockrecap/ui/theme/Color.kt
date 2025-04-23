@@ -16,7 +16,7 @@ val RockSuccess = Color(0xFF3FA859)
 val RockOutline = Color(0x40000000)
 val RockHeading = Color(0xFFFCFCFC)
 
-val ChartBlue = Color(0xFF3286FD)
+val ChartBlue = Color(0xFF58A8FF) // old hex 0xFF3286FD
 val ChartGray = Color(0xFFDADADA)
 
 val RockWhite = Color(0xFFFFFFFF)
@@ -38,6 +38,8 @@ val RockGray = Color(0xFFA3A3A3)
 val RockGray50 = Color(0x80A3A3A3)
 val RockBlack = Color(0xFF616161)
 val RockBlack50 = Color(0x80616161)
+val RockTan = Color(0xFFECC8AB)
+val RockTan50 = Color(0x80ECC8AB)
 val RockBrown = Color(0xFFC78B65)
 val RockBrown50 = Color(0x80C78B65)
 

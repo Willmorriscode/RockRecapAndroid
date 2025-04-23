@@ -15,7 +15,6 @@ import com.rockrecap.data.RouteViewModel
 @Composable
 fun AddRoutePage(navController: NavHostController, viewModel: RouteViewModel){
     val scrollState = rememberScrollState()
-
     Column(modifier = Modifier
         .verticalScroll(scrollState)
     ){

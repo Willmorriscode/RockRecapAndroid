@@ -27,10 +27,14 @@ import kotlinx.coroutines.launch
 fun EditRoutePage(navController: NavHostController, viewModel: RouteViewModel){
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+
     Column(modifier = Modifier
         .verticalScroll(scrollState)
     ){
-        BackButton(onBackSelected = { navController.popBackStack() })
+        BackButton(onBackSelected = {
+            viewModel.resetRouteFormPage()
+            navController.popBackStack()
+        })
         PageTitle(stringResource(id = R.string.edit_route))
         RouteForm(viewModel, navController, true)
         Row(

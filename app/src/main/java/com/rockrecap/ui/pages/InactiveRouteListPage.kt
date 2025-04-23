@@ -10,5 +10,5 @@ import com.rockrecap.data.RouteViewModel
 @Composable
 fun InactiveRouteListPage(navController: NavHostController, viewModel: RouteViewModel){
 
-    RouteListContent(navController, viewModel, stringResource(id = R.string.inactive_routes), viewActiveRoutes = true)
+    RouteListContent(navController, viewModel, stringResource(id = R.string.inactive_routes), viewActiveRoutes = false)
 }
