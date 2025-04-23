@@ -1,18 +1,17 @@
 package com.rockrecap.data.enums
 
 enum class RouteGrade(val text: String) {
-    UNSET("NA"),
+    UNSET("No Grade"),
 
     // boulder ratings
     VB("VB"),
-    V1("V1"),
-    V2("V2"),
-    V3("V3"),
-    V4("V4"),
-    V5("V5"),
-    V6("V6"),
-    V7("V7"),
-    V8("V8"),
+    V0_2("V0-V2"),
+    V1_3("V1-V3"),
+    V2_4("V2-V4"),
+    V3_5("V3-V5"),
+    V4_6("V4-V6"),
+    V5_7("V5-V7"),
+    V6_8("V6-V8"),
     V9("V9"),
     V10("V10"),
     V11("V11"),
@@ -42,14 +41,13 @@ fun getRouteGradeList(option: Int): List<RouteGrade> {
     routeGradeList.add(RouteGrade.UNSET)
     if(option == 1 || option == 3){
         routeGradeList.add(RouteGrade.VB)
-        routeGradeList.add(RouteGrade.V1)
-        routeGradeList.add(RouteGrade.V2)
-        routeGradeList.add(RouteGrade.V3)
-        routeGradeList.add(RouteGrade.V4)
-        routeGradeList.add(RouteGrade.V5)
-        routeGradeList.add(RouteGrade.V6)
-        routeGradeList.add(RouteGrade.V7)
-        routeGradeList.add(RouteGrade.V8)
+        routeGradeList.add(RouteGrade.V0_2)
+        routeGradeList.add(RouteGrade.V1_3)
+        routeGradeList.add(RouteGrade.V2_4)
+        routeGradeList.add(RouteGrade.V3_5)
+        routeGradeList.add(RouteGrade.V4_6)
+        routeGradeList.add(RouteGrade.V5_7)
+        routeGradeList.add(RouteGrade.V6_8)
         routeGradeList.add(RouteGrade.V9)
         routeGradeList.add(RouteGrade.V10)
         routeGradeList.add(RouteGrade.V11)
