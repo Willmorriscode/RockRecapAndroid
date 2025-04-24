@@ -33,6 +33,13 @@ class RouteViewModel(private val routesRepository: RoutesRepository): ViewModel(
      */
     data class ActiveRouteUiState(val routeList: List<Route> = listOf())
 
+    private val _displayConfetti = mutableStateOf(false)
+    val displayConfetti: State<Boolean> = _displayConfetti
+
+    fun updateDisplayConfetti(newState: Boolean) {
+        _displayConfetti.value = newState
+    }
+
     val activeRoutesUiState: StateFlow<ActiveRouteUiState> = routesRepository.getAllActiveRoutesStream()
         .map{ ActiveRouteUiState(it) }
         .stateIn(

@@ -1,5 +1,6 @@
 package com.rockrecap.ui.pages
 
+import ConfettiView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -67,6 +68,7 @@ import com.rockrecap.data.RouteViewModel
 import com.rockrecap.data.SnackbarController
 import com.rockrecap.data.SnackbarEvent
 import com.rockrecap.data.enums.RouteCompleteStatus
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -89,6 +91,7 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
         .fillMaxSize()
         .verticalScroll(scrollState)
     ){
+        ConfettiView(viewModel)
         if(selectedRoute != null){
             BackButton(onBackSelected = {
                 // page navigation
@@ -146,7 +149,6 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                     }
                 }
             }
-
             if(showDeleteRouteModal){
                 DeleteRouteModal(
                     onDismissRequest = { showDeleteRouteModal = false },
@@ -171,7 +173,6 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                     }
                 )
             }
-
             Row(modifier = Modifier
                 .wrapContentSize(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -291,6 +292,9 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                                     message = "${context.getString(R.string.completed_route_message)} '${viewModel.selectedRoute.value?.name}'"
                                 )
                             )
+                            viewModel.updateDisplayConfetti(true)
+                            delay(5000L) // Wait 5 seconds
+                            viewModel.updateDisplayConfetti(false)
                         }
                     }
                 )
