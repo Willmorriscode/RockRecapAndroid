@@ -91,8 +91,8 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
         .fillMaxSize()
         .verticalScroll(scrollState)
     ){
-        ConfettiView(viewModel)
         if(selectedRoute != null){
+            ConfettiView(viewModel, selectedRoute.color.color)
             BackButton(onBackSelected = {
                 // page navigation
                 navController.popBackStack()
