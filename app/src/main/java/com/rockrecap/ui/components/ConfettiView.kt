@@ -40,7 +40,7 @@ fun ConfettiView(viewModel: RouteViewModel) {
             confettiList.forEach { confetti ->
                 drawCircle(
                     color = confetti.color,
-                    radius = 8f,
+                    radius = 8f + Random.nextFloat() * (16f - 8f),
                     center = Offset(confetti.x, confetti.y),
                     style = Fill
                 )

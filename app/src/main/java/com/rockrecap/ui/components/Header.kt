@@ -57,6 +57,7 @@ fun Header(navController: NavHostController, viewModel: RouteViewModel){
                     // used to reset the view in the statistics page if navigated through the hamburger menu
                     viewModel.updateRouteFilter(null)
                     viewModel.resetRouteFormPage()
+                    viewModel.updateDisplayConfetti(false)
                            },
             painter = painterResource(id = R.drawable.rockrecap_logo),
             contentDescription = "Rock Recap Logo",
@@ -75,6 +76,7 @@ fun Header(navController: NavHostController, viewModel: RouteViewModel){
 
             // used to reset the view in the statistics page if navigated through the hamburger menu
             viewModel.updateRouteFilter(null)
+            viewModel.updateDisplayConfetti(false)
         }
     }
 }

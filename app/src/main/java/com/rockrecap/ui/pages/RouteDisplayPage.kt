@@ -96,6 +96,7 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
             BackButton(onBackSelected = {
                 // page navigation
                 navController.popBackStack()
+                viewModel.updateDisplayConfetti(false)
             })
             Row(modifier = Modifier
                 .fillMaxWidth(),
@@ -293,7 +294,7 @@ fun RouteDisplayPage(navController: NavHostController, viewModel: RouteViewModel
                                 )
                             )
                             viewModel.updateDisplayConfetti(true)
-                            delay(5000L) // Wait 5 seconds
+                            delay(4000L) // Wait 5 seconds
                             viewModel.updateDisplayConfetti(false)
                         }
                     }
